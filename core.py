@@ -5,7 +5,7 @@ import json, shutil
 import traceback
 
 from datetime import datetime
-from lists import Errors, SystemErrors
+#from lists import Errors, SystemErrors
 from mega import Mega
 
 empty = ['', " ", "  ", "   "]
@@ -134,16 +134,16 @@ def clear_log(path=logs_path):
 		with open(path, 'w'):
 		   pass
 	except Exception:
-	   log_entry(SystemErrors.func_error +"«clear_log»")
+	   log_entry("func_error" + "«clear_log»")
 	   
 def db_reserve():
 	try:
 		shutil.copytree(dbs_path, '')
 	except Exception:
-	   log_entry(SystemErrors.func_error +"«clear_log»")
+	   log_entry("func_error" + "«clear_log»")
 	   
 def check_language(path, uid):
 	try:
 		pass
 	except Exception:
-	   log_entry(SystemErrors.func_error +"«clear_log»")
+	   log_entry("func_error" + "«clear_log»")
