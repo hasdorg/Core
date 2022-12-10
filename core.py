@@ -1,27 +1,30 @@
-#version : 0.31
+#version : 0.64
 import os, sys
-import time, random
-import json, shutil
+import shutil
 import traceback
+import time
+import random
+import json
+import pymongo
+import sqlite3
 
+from os.path import isfile, isdir
 from datetime import datetime
-#from lists import Errors, SystemErrors
-from mega import Mega
 
-empty = ['', " ", "  ", "   "]
-logs_path = "logs/logs.txt"
-lang_path = 'details/lang/'
+empty = ["", " "]
+log_path = "logs/logs.txt"
 
-def easy(list, indent=2):
-	pip = json.dumps(list, ensure_ascii=False, indent=indent)
-	return pip
+def easy(list, indent=1):
+	dict = json.dumps(list, ensure_ascii=False, indent=indent)
+	return dict
 
-class Sample:
-	def __init__(self):
-		pass
+#class Sample:
+#	def __init__(self, filename):
+#		pass
 
-class DB:
-	def __init__(self, filename):
+class dbjson:
+#	def __new__():
+	def __init__(self, filename: str):
 		self.filename = filename
 		
 #	def setup(self):
@@ -30,90 +33,128 @@ class DB:
 #				pass
 #		else:
 #			pass
-
-	def lang(self):
-		with open(f"{self.filename}", "r") as fl:
-			pass
 		
-	def login(self, dict):
-		if os.path.isfile(f"{self.filename}.json"):
+	def login(self, dict: dict):
+		if isfile(self.filename):
 			return False
 		else:
-			with open(f"{self.filename}.json", 'w') as fl:
+			with open(self.filename, 'w') as fl:
 				fl.write(easy(dict))
 			return True
 			
-	def read(self, var):
-		with open(f"{self.filename}.json", 'r') as fl:
+	def read(self, varname: str, group=None):
+		with open(self.filename, 'r') as fl:
 			content = json.loads(fl.read())
-			return content[var]
-			
-	def write(self, var, value):
-		with open(f"{self.filename}.json", "r+") as fl:
-			content = json.loads(fl.read())
-			if var not in content.keys():
-				pass
+			if group == None:
+				return content[varname]
 			else:
-				content[var] = value
+				return content[group][varname]
+			
+	def write(self, varname: str, value: all):
+		with open(self.filename, 'r+') as fl:
+			content = json.loads(fl.read())
+			if varname not in content.keys():
+				return False
+				
+			else:
+				content[varname] = value
 				fl.seek(0)
 				fl.truncate()
 				fl.write(easy(content))
-				return content[var]
+				return True
 				
-	def rename(self, var, name):
-		files = os.listdir(f"{self.filename}")
-		for r in range(len(files)):
-			with open(f"{self.filename}{files[r]}", "r+") as fl:
-				r += 1
+	def rename(self, varname: str, newname: str):
+		files = [self.filename] if isfile(self.filename) else os.listdir(filename)
+		
+		for file in files:
+			with open(file, 'r+') as fl:
 				content = json.loads(fl.read())
 				itm = list(content.items())
 				key = list(content.keys())
-				itm.insert(key.index(var), (f"{name}", content[var]))
+				itm.insert(key.index(varname), (newname, content[varname]))
 				content = dict(itm)
-				del content[var]
+				del content[varname]
 				fl.seek(0)
 				fl.truncate()
 				fl.write(easy(content))
+				
+		return True
 			
-	def add(self, var, value, pos=-1):
-		files = os.listdir(f"{self.filename}")
-		for r in range(len(files)):
-			with open(f"{self.filename}{files[r]}", "r+") as fl:
-				r += 1
+	def add(self, var: str, value: all, position: int =-1):
+		files = [self.filename] if isfile(self.filename) else os.listdir(filename)
+		
+		for file in files:
+			with open(file, 'r+') as fl:
 				content = json.loads(fl.read())
+
 				if var in content.keys():
 					pass
+					
 				else:
 					itm = list(content.items())
 					key = list(content.keys())
-					itm.insert(pos, (f"{var}", f"{value}"))
+					itm.insert(position, (var, value))
 					content = dict(itm)
 					fl.seek(0)
 					fl.truncate()
 					fl.write(easy(content))
+					
+		return True
 
-	def delete(self, var):
-		files = os.listdir(f"{self.filename}")
-		for r in range(len(files)):
-			with open(f"{self.filename}{files[r]}", "r+") as fl:
-				r += 1
-				content = json.loads(fl.read())
-				del content[var]
-				fl.seek(0)
-				fl.truncate()
-				fl.write(easy(content))
+	def delete(self, varname: str):
+		files = [self.filename] if isfile(self.filename) else os.listdir(filename)
 		
-def access_check(uid, list1):
-	if uid in list1.values():
+		for file in files:
+			with open(file, 'r+') as fl:
+				content = json.loads(fl.read())
+				
+				if varname in content.keys():
+					del content[varname]
+					fl.seek(0)
+					fl.truncate()
+					fl.write(easy(content))
+					
+				else:
+					continue
+					
+		return True
+		
+class dbmongo:
+	def __init__(self, filename: str):
+		pass
+				
+class dbsqlite3:
+	def __init__(self, filename: str):
+		self.con = sqlite3.connect(filename)
+		self.cur = con.cursor()
+		self.filename = filename
+		
+	def read(self, var):
+		pass
+		
+	def write(self, varname, value):
+		pass
+	
+	def add(self, var, value, pos):
+		pass
+		
+	def rename(self, var, newname):
+		pass
+		
+	def delete(self, varname):
+		pass
+		
+def access_check(uid, list):
+	if uid in list.values():
 		return True
 	else:
 		return False
 		
-def log_entry(comment="", path=logs_path):
-	if os.path.isdir(path.rpartition("/")[0]) == False:
+def log_entry(comment=None, path=log_path):
+	if isdir(path.rpartition("/")[0]) == False:
 		os.mkdir(path.rpartition("/")[0])
 		
-	if comment != "":
+	if comment != None:
 		error_msg = f"""
 \n
 {datetime.now()}
@@ -129,21 +170,14 @@ def log_entry(comment="", path=logs_path):
 	with open(path, 'a') as log:
 		log.write(error_msg)
 		
-def clear_log(path=logs_path):
+	return True
+		
+def clear_log(path=log_path):
 	try:
 		with open(path, 'w'):
-		   pass
+			pass
+			
+		return True
 	except Exception:
-	   log_entry("func_error" + "«clear_log»")
-	   
-def db_reserve():
-	try:
-		shutil.copytree(dbs_path, '')
-	except Exception:
-	   log_entry("func_error" + "«clear_log»")
-	   
-def check_language(path, uid):
-	try:
-		pass
-	except Exception:
-	   log_entry("func_error" + "«clear_log»")
+	   log_entry("Func Error: clear_log")
+	   return False
