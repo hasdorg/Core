@@ -27,9 +27,8 @@ def creator(dirs: dict, catalog: str = Path(__file__).parent): #create dirs
 		path = f"{catalog}{sysword()}{dir}"
 		if isdir(path) == False:
 			os.mkdir(path)
-
+			
 	return True
-creator(["dsd"], "f:\Projects")
 
 def easy(list, indent=1):
 	dict = json.dumps(list, ensure_ascii=False, indent=indent)
