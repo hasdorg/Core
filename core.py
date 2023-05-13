@@ -17,10 +17,19 @@ def sysword(): #return hyphen depending system
 
 def syspath(path): #return correct path to object in catalog
 	if "win" in platform:
-		new_path = f"{Path(__file__).parents[0]}{sysword()}{path}"
+		new_path = f"{Path(__file__).parent}{sysword()}{path}"
 		return new_path
 	else:
 		return path
+	
+def creator(dirs: dict, catalog: str = Path(__file__).parent): #create dirs
+	for dir in dirs:
+		path = f"{catalog}{sysword()}{dir}"
+		if isdir(path) == False:
+			os.mkdir(path)
+
+	return True
+creator(["dsd"], "f:\Projects")
 
 def easy(list, indent=1):
 	dict = json.dumps(list, ensure_ascii=False, indent=indent)
@@ -145,7 +154,7 @@ class dbjson:
 				
 		return True
 			
-	def add(self, varname: str, value: all, position: int =-1):
+	def add(self, varname: str, value: all, position: int = -1):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 		
 		for file in files:
