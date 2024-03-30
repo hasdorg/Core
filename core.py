@@ -1,10 +1,9 @@
-#version : 0.8
+version = 0.86
 import os
 import traceback
 import json
 
 from os.path import isfile, isdir
-from pathlib import Path
 from datetime import datetime
 from sys import platform
 
@@ -15,27 +14,31 @@ def sysword(): #return hyphen depending system
 		word = "/"
 	return word
 
-def syspath(path): #return correct path to object in catalog
+def syspath(file: str): #return correct path to file in catalog
 	if "win" in platform:
-		new_path = f"{Path(__file__).parent}{sysword()}{path}"
-		return new_path
-	else:
+		path = f"{os.path.dirname(__file__)}{sysword()}{file}"
 		return path
+	else:
+		return file
 	
-def creator(dirs: dict, catalog: str = Path(__file__).parent): #create dirs
+def clr_console():
+	if "win" in platform:
+		os.system("cls")
+	else:
+		os.system("clear")
+	return True
+	
+def creator(dirs: dict, catalog: str=os.path.dirname(__file__)): #create dirs
 	for dir in dirs:
 		path = f"{catalog}{sysword()}{dir}"
 		if isdir(path) == False:
 			os.mkdir(path)
-			
+
 	return True
 
-def easy(list, indent=1):
-	dict = json.dumps(list, ensure_ascii=False, indent=indent)
-	return dict
-
-empty = ["", " ", "  "]
-log_path = syspath(f"logs{sysword()}logs.txt")
+def easy(dict: dict, indent: int=1, ascii: bool=False):
+	new_dict = json.dumps(dict, ensure_ascii=ascii, indent=indent)
+	return new_dict
 
 class dbjson:
 	def __init__(self, filename: str):
@@ -63,7 +66,7 @@ class dbjson:
 					write(f"{self.filename}{r}.json")
 		return True
 
-	def read(self, varname: str, group=None, address=None):
+	def read(self, varname: str, group=None):
 		if isfile(self.filename):
 			with open(self.filename, 'r', encoding="utf8") as fl:
 				content = json.loads(fl.read())
@@ -73,7 +76,7 @@ class dbjson:
 					return content[group][varname]
 		else:
 			return False
-		
+
 	def readdict(self, group=None):
 		if isfile(self.filename):
 			with open(self.filename, 'r', encoding="utf8") as fl:
@@ -84,7 +87,7 @@ class dbjson:
 					return content[group]
 		else:
 			return False
-			
+
 	def write(self, varname: str, value: all):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
@@ -100,7 +103,7 @@ class dbjson:
 					fl.truncate()
 					fl.write(easy(content))
 		return True
-	
+
 	def append(self, dict_name: str, varname: all, value: all):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
@@ -187,31 +190,27 @@ class dbjson:
 		return True
 		
 class logs:
-	def __init__(self, path):
-		self.path = path
+	def __init__(self, file: str=syspath(f"logs{sysword()}logs.txt")):
+		self.path = file
 		
-	def log_entry(self):
-		if isdir(self.path.rpartition(sysword())[0]) == False:
-			os.mkdir(self.path.rpartition(sysword())[0])
+	def create_logs(self):
+		path = self.path.rpartition(sysword())[0]
+		if isdir(path) == False:
+			os.mkdir(path)
 
-		error_msg = f"""
-	\n
-	{datetime.now()}
-	{traceback.format_exc()}"""
+		error = f"""\n\n
+{datetime.now()}
+{traceback.format_exc()}"""
 			
 		with open(self.path, 'a', encoding="utf8") as log:
-			log.write(error_msg)
+			log.write(error)
 
 		return True
 	
-	def logs_entry(self, filename, content):
+	def logs_entry(self, content):
 		with open(self.path, 'a', encoding="utf8") as log:
 			log.write(f"\n{content}")
 
 	def clear_log(self):
 		with open(self.path, 'w', encoding="utf8"):
 			return True
-		
-def access_check(uid, list):
-	if uid in list.values():
-		return True
