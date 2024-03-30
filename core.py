@@ -1,4 +1,4 @@
-version = 0.86
+core_version = 0.86
 import os
 import traceback
 import json
