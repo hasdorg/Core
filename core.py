@@ -1,4 +1,4 @@
-core_version = 0.86
+core_version = 0.87
 import os
 import traceback
 import json
@@ -17,9 +17,9 @@ def sysword(): #return hyphen depending system
 def syspath(file: str): #return correct path to file in catalog
 	if "win" in platform:
 		path = f"{os.path.dirname(__file__)}{sysword()}{file}"
-		return path
+		return path.replace("/", "\\")
 	else:
-		return file
+		return file.replace("\\", "/")
 	
 def clr_console():
 	if "win" in platform:
@@ -40,9 +40,29 @@ def easy(dict: dict, indent: int=1, ascii: bool=False):
 	new_dict = json.dumps(dict, ensure_ascii=ascii, indent=indent)
 	return new_dict
 
+class dbtxt:
+	def __init__(self, filename: str):
+		self.filename = filename
+
+	def read(self, var: all):
+		if isfile(self.filename):
+			with open(self.filename, 'r', encoding="utf8") as fl:
+				content = fl.read()
+				return content
+				
+		else: 
+			return False
+		
+	def write(self, var: all, value: all):
+		if isfile(self.filename):
+			with open(self.filename, 'r+', encoding="utf8") as fl:
+				content = fl.read()
+		else:
+			return False
+
 class dbjson:
 	def __init__(self, filename: str):
-		self.filename = filename	
+		self.filename = filename
 
 	def login(self, dict: dict = None, range: int = 1):
 		def write(path):
@@ -120,7 +140,7 @@ class dbjson:
 					fl.truncate()
 					fl.write(easy(content))
 		return True
-	
+
 	def del_dict(self, dict_name: str, varname: all):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
@@ -138,10 +158,10 @@ class dbjson:
 					fl.truncate()
 					fl.write(easy(content))
 		return True
-				
+
 	def rename(self, varname: str, newname: str):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
-		
+
 		for file in files:
 			with open(file, 'r+', encoding="utf8") as fl:
 				content = json.loads(fl.read())
@@ -153,12 +173,12 @@ class dbjson:
 				fl.seek(0)
 				fl.truncate()
 				fl.write(easy(content))
-				
+
 		return True
-			
+
 	def add(self, varname: str, value: all, position: int = -1):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
-		
+
 		for file in files:
 			with open(file, 'r+', encoding="utf8") as fl:
 				content = json.loads(fl.read())
@@ -171,7 +191,7 @@ class dbjson:
 					fl.seek(0)
 					fl.truncate()
 					fl.write(easy(content))
-					
+
 		return True
 
 	def del_var(self, varname: str):
@@ -186,9 +206,9 @@ class dbjson:
 					fl.seek(0)
 					fl.truncate()
 					fl.write(easy(content))
-					
+
 		return True
-		
+
 class logs:
 	def __init__(self, file: str=syspath(f"logs{sysword()}logs.txt")):
 		self.path = file
