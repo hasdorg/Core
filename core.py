@@ -1,4 +1,4 @@
-core_version = 0.87
+core_version = 0.871
 import os
 import traceback
 import json
@@ -44,7 +44,7 @@ class dbtxt:
 	def __init__(self, filename: str):
 		self.filename = filename
 
-	def read(self, var: all):
+	def read(self):
 		if isfile(self.filename):
 			with open(self.filename, 'r', encoding="utf8") as fl:
 				content = fl.read()
@@ -53,7 +53,7 @@ class dbtxt:
 		else: 
 			return False
 		
-	def write(self, var: all, value: all):
+	def write(self, text: all):
 		if isfile(self.filename):
 			with open(self.filename, 'r+', encoding="utf8") as fl:
 				content = fl.read()
@@ -112,7 +112,7 @@ class dbjson:
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
 		for file in files:
-			if isfile(file) == False:
+			if not isfile(file):
 				dbjson.login(file)
 
 			with open(file, 'r+', encoding="utf8") as fl:
@@ -128,7 +128,7 @@ class dbjson:
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
 		for file in files:
-			if isfile(file) == False:
+			if not isfile(file):
 				dbjson.login(file)
 
 			with open(file, 'r+', encoding="utf8") as fl:
@@ -145,7 +145,7 @@ class dbjson:
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
 		for file in files:
-			if isfile(file) == False:
+			if not isfile(file):
 				return False
 
 			with open(file, 'r+', encoding="utf8") as fl:
@@ -200,7 +200,6 @@ class dbjson:
 		for file in files:
 			with open(file, 'r+', encoding="utf8") as fl:
 				content = json.loads(fl.read())
-				
 				if varname in content.keys():
 					del content[varname]
 					fl.seek(0)
