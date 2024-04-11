@@ -1,4 +1,4 @@
-core_version = 0.871
+core_version = 0.88
 import os
 import traceback
 import json
@@ -8,26 +8,21 @@ from datetime import datetime
 from sys import platform
 
 def sysword(): #return hyphen depending system
-	if "win" in platform:
-		word = "\\"
-	else:
-		word = "/"
-	return word
+	return {"linux": "/", "win32": "\\"}[platform]
 
 def syspath(file: str): #return correct path to file in catalog
-	if "win" in platform:
-		path = f"{os.path.dirname(__file__)}{sysword()}{file}"
-		return path.replace("/", "\\")
-	else:
-		return file.replace("\\", "/")
+	word = sysword()
+	path = {"linux": file, "win32": f"{os.path.dirname(__file__)}{word}{file}"}[platform]
+	path = path.replace("/", word).replace("\\", word)
 	
-def clr_console():
-	if "win" in platform:
-		os.system("cls")
-	else:
-		os.system("clear")
+	while "//" in path or "\\\\" in path:
+		path = path.replace("//", word).replace("\\\\", word)
+	return path
+	
+def sysclear():
+	os.system({"linux": "clear", "win32": "cls"}[platform])
 	return True
-	
+
 def creator(dirs: dict, catalog: str=os.path.dirname(__file__)): #create dirs
 	for dir in dirs:
 		path = f"{catalog}{sysword()}{dir}"
