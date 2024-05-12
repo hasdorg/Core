@@ -1,4 +1,4 @@
-core_version = 0.88
+core_version = 0.9
 import os
 import traceback
 import json
@@ -18,7 +18,7 @@ def syspath(file: str): #return correct path to file in catalog
 	while "//" in path or "\\\\" in path:
 		path = path.replace("//", word).replace("\\\\", word)
 	return path
-	
+
 def sysclear():
 	os.system({"linux": "clear", "win32": "cls"}[platform])
 	return True
@@ -51,7 +51,8 @@ class dbtxt:
 	def write(self, text: all):
 		if isfile(self.filename):
 			with open(self.filename, 'r+', encoding="utf8") as fl:
-				content = fl.read()
+				content = fl.write(text)
+				return content
 		else:
 			return False
 
@@ -171,7 +172,7 @@ class dbjson:
 
 		return True
 
-	def add(self, varname: str, value: all, position: int = -1):
+	def add(self, varname: str, value: all, position: int=-1):
 		files = [self.filename] if isfile(self.filename) else os.listdir(self.filename)
 
 		for file in files:
